@@ -51,13 +51,27 @@ function AllTodosByDatePage() {
     task.done = !task.done;
     setTodoList(copy);
 
-    // Firestore에 저장
     try {
       await updateDoc(doc(db, 'todos', entry.docId), {
         tasks: entry.tasks,
       });
     } catch (err) {
       alert('Firestore 저장 실패: ' + err.message);
+    }
+  };
+
+  const handleMemoChange = async (entryIndex, value) => {
+    const copy = [...todoList];
+    const entry = copy[entryIndex];
+    entry.memo = value;
+    setTodoList(copy);
+
+    try {
+      await updateDoc(doc(db, 'todos', entry.docId), {
+        memo: value,
+      });
+    } catch (err) {
+      alert('메모 저장 실패: ' + err.message);
     }
   };
 
@@ -134,8 +148,8 @@ function AllTodosByDatePage() {
               <div style={{ marginTop: 10 }}>
                 <textarea
                   rows={3}
-                  readOnly
                   value={entry.memo}
+                  onChange={(e) => handleMemoChange(entryIndex, e.target.value)}
                   style={{ width: '100%', backgroundColor: '#eef' }}
                 />
               </div>
