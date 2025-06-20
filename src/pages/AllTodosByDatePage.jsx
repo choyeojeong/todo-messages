@@ -1,6 +1,12 @@
 import { useEffect, useState } from 'react';
 import { db } from '../utils/firebaseClient';
-import { collection, getDocs, doc, getDoc } from 'firebase/firestore';
+import {
+  collection,
+  getDocs,
+  doc,
+  getDoc,
+  updateDoc,
+} from 'firebase/firestore';
 import dayjs from 'dayjs';
 import { useNavigate } from 'react-router-dom';
 
@@ -24,7 +30,10 @@ function AllTodosByDatePage() {
       const data = docSnap.data();
       const studentSnap = await getDoc(doc(db, 'students', data.studentId));
       const student = studentSnap.exists() ? studentSnap.data() : { name: '이름없음' };
+
       result.push({
+        studentId: data.studentId,
+        docId: docSnap.id,
         studentName: student.name,
         tasks: data.tasks || [],
         memo: data.memo || '',
@@ -33,6 +42,23 @@ function AllTodosByDatePage() {
 
     setTodoList(result);
     setLoading(false);
+  };
+
+  const handleToggleCheck = async (entryIndex, taskIndex) => {
+    const copy = [...todoList];
+    const entry = copy[entryIndex];
+    const task = entry.tasks[taskIndex];
+    task.done = !task.done;
+    setTodoList(copy);
+
+    // Firestore에 저장
+    try {
+      await updateDoc(doc(db, 'todos', entry.docId), {
+        tasks: entry.tasks,
+      });
+    } catch (err) {
+      alert('Firestore 저장 실패: ' + err.message);
+    }
   };
 
   return (
@@ -64,9 +90,9 @@ function AllTodosByDatePage() {
             gap: 20,
           }}
         >
-          {todoList.map((entry, index) => (
+          {todoList.map((entry, entryIndex) => (
             <div
-              key={index}
+              key={entryIndex}
               style={{
                 border: '1px solid #ccc',
                 padding: 10,
@@ -100,7 +126,7 @@ function AllTodosByDatePage() {
                   <input
                     type="checkbox"
                     checked={t.done}
-                    readOnly
+                    onChange={() => handleToggleCheck(entryIndex, i)}
                     style={{ marginLeft: 5 }}
                   />
                 </div>
