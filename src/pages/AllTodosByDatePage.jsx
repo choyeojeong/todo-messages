@@ -57,12 +57,17 @@ function AllTodosByDatePage() {
       {loading ? (
         <p>불러오는 중...</p>
       ) : (
-        <div style={{ display: 'flex', gap: 20, overflowX: 'auto' }}>
+        <div
+          style={{
+            display: 'grid',
+            gridTemplateColumns: 'repeat(auto-fill, minmax(250px, 1fr))',
+            gap: 20,
+          }}
+        >
           {todoList.map((entry, index) => (
             <div
               key={index}
               style={{
-                minWidth: 250,
                 border: '1px solid #ccc',
                 padding: 10,
                 backgroundColor: '#f9f9f9',
