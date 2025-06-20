@@ -2,6 +2,8 @@ import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import StudentPage from './pages/StudentPage';
 import StudentTodoPage from './pages/StudentTodoPage';
 import LoginPage from './pages/LoginPage';
+import DashboardPage from './pages/DashboardPage';
+import AllTodosByDatePage from './pages/AllTodosByDatePage'; // 추가
 import { useEffect, useState } from 'react';
 import { auth } from './utils/firebaseClient';
 
@@ -25,8 +27,10 @@ function App() {
         <Route path="/login" element={<LoginPage />} />
         {user ? (
           <>
-            <Route path="/" element={<StudentPage />} />
+            <Route path="/" element={<DashboardPage />} />
+            <Route path="/students" element={<StudentPage />} />
             <Route path="/student/:id" element={<StudentTodoPage />} />
+            <Route path="/all-todos" element={<AllTodosByDatePage />} />
           </>
         ) : (
           <Route path="*" element={<Navigate to="/login" replace />} />
