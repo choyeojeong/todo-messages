@@ -28,15 +28,27 @@ function StudentTodoPage() {
     fetchStudent();
   }, [id]);
 
-  const generateDates = () => {
+  const generateDates = async () => {
     const result = [];
     let current = dayjs(startDate);
     const end = dayjs(endDate);
+    const newTodos = {};
+
     while (current.isBefore(end) || current.isSame(end)) {
-      result.push(current.format('YYYY-MM-DD'));
+      const dateStr = current.format('YYYY-MM-DD');
+      result.push(dateStr);
+
+      // 저장된 할일 불러오기
+      const snap = await getDoc(doc(db, 'todos', `${id}_${dateStr}`));
+      if (snap.exists()) {
+        newTodos[dateStr] = snap.data();
+      }
+
       current = current.add(1, 'day');
     }
+
     setDates(result);
+    setTodos(newTodos);
   };
 
   const handleAddTask = (date) => {
