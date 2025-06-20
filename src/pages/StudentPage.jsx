@@ -1,4 +1,3 @@
-// src/pages/StudentPage.jsx
 import { useState, useEffect } from 'react';
 import { db } from '../utils/firebaseClient';
 import {
@@ -77,6 +76,10 @@ function StudentPage() {
 
   return (
     <div style={{ padding: 30 }}>
+      <button onClick={() => navigate(-1)} style={{ marginBottom: 20 }}>
+        ⬅ 뒤로가기
+      </button>
+
       <h2>학생 {editingId ? '수정' : '등록'}</h2>
       <div style={{ display: 'flex', gap: 10, marginBottom: 20 }}>
         <input
