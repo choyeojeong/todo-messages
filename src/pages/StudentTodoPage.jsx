@@ -1,8 +1,6 @@
-// src/pages/StudentTodoPage.jsx
 import { useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import {
-  collection,
   doc,
   getDoc,
   setDoc,
@@ -12,14 +10,15 @@ import dayjs from 'dayjs';
 
 function StudentTodoPage() {
   const { id } = useParams();
+  const navigate = useNavigate();
   const [student, setStudent] = useState(null);
   const [startDate, setStartDate] = useState('');
   const [endDate, setEndDate] = useState('');
   const [dates, setDates] = useState([]);
   const [todos, setTodos] = useState({});
   const [message, setMessage] = useState('');
-  const [savingDate, setSavingDate] = useState(''); // 저장 중 날짜
-  const [copyMessage, setCopyMessage] = useState(false); // 메시지 복사 알림
+  const [savingDate, setSavingDate] = useState('');
+  const [copyMessage, setCopyMessage] = useState(false);
 
   useEffect(() => {
     const fetchStudent = async () => {
@@ -81,7 +80,7 @@ function StudentTodoPage() {
   };
 
   const handleGenerateMessage = () => {
-    let text = `[${student?.name} 다음주차 할 일]\n\n`;
+    let text = `[${student?.name} 다음주차 할 일 (🔥)]\n\n`;
 
     dates.forEach((date) => {
       const d = dayjs(date);
@@ -105,12 +104,16 @@ function StudentTodoPage() {
       setCopyMessage(true);
       setTimeout(() => setCopyMessage(false), 2000);
     } catch (err) {
-      alert('클립보드 복사 실패');
+      alert('복사 실패');
     }
   };
 
   return (
     <div style={{ padding: 20 }}>
+      <button onClick={() => navigate(-1)} style={{ marginBottom: 20 }}>
+        ⬅ 뒤로가기
+      </button>
+
       <h2>{student?.name} 할 일 관리</h2>
 
       <div style={{ marginBottom: 20 }}>
