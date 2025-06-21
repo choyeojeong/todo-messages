@@ -14,6 +14,8 @@ function AllTodosByDatePage() {
   const [selectedDate, setSelectedDate] = useState('');
   const [todoList, setTodoList] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [teacherOptions, setTeacherOptions] = useState([]);
+  const [selectedTeacher, setSelectedTeacher] = useState('');
   const navigate = useNavigate();
 
   const fetchTodosByDate = async () => {
@@ -25,22 +27,26 @@ function AllTodosByDatePage() {
     );
 
     const result = [];
+    const teachers = new Set();
 
     for (const docSnap of filtered) {
       const data = docSnap.data();
       const studentSnap = await getDoc(doc(db, 'students', data.studentId));
-      const student = studentSnap.exists() ? studentSnap.data() : { name: '이름없음' };
+      const student = studentSnap.exists() ? studentSnap.data() : { name: '이름없음', teacher: '' };
 
+      teachers.add(student.teacher || '');
       result.push({
         studentId: data.studentId,
         docId: docSnap.id,
         studentName: student.name,
+        teacher: student.teacher,
         tasks: data.tasks || [],
         memo: data.memo || '',
       });
     }
 
     setTodoList(result);
+    setTeacherOptions(Array.from(teachers));
     setLoading(false);
   };
 
@@ -75,6 +81,11 @@ function AllTodosByDatePage() {
     }
   };
 
+  // 필터된 목록
+  const filteredList = selectedTeacher
+    ? todoList.filter(entry => entry.teacher === selectedTeacher)
+    : todoList;
+
   return (
     <div style={{ padding: 30 }}>
       <button onClick={() => navigate(-1)} style={{ marginBottom: 20 }}>
@@ -82,16 +93,32 @@ function AllTodosByDatePage() {
       </button>
 
       <h2>날짜별 할일 목록</h2>
-      <div style={{ marginBottom: 20 }}>
+
+      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 20 }}>
         <label>날짜 선택: </label>
         <input
           type="date"
           value={selectedDate}
           onChange={(e) => setSelectedDate(e.target.value)}
         />
-        <button onClick={fetchTodosByDate} style={{ marginLeft: 10 }}>
-          조회
-        </button>
+        <button onClick={fetchTodosByDate}>조회</button>
+
+        {teacherOptions.length > 0 && (
+          <>
+            <label>담당 선생님:</label>
+            <select
+              value={selectedTeacher}
+              onChange={(e) => setSelectedTeacher(e.target.value)}
+            >
+              <option value="">전체</option>
+              {teacherOptions.map((t, idx) => (
+                <option key={idx} value={t}>
+                  {t}
+                </option>
+              ))}
+            </select>
+          </>
+        )}
       </div>
 
       {loading ? (
@@ -104,7 +131,7 @@ function AllTodosByDatePage() {
             gap: 20,
           }}
         >
-          {todoList.map((entry, entryIndex) => (
+          {filteredList.map((entry, entryIndex) => (
             <div
               key={entryIndex}
               style={{
